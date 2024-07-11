@@ -1,0 +1,7 @@
+FROM python:3.10.11
+USER root
+
+COPY ./.env /opt/app/.env
+COPY ./flask_requirements.txt .
+COPY ./consumer.py .
+RUN pip install -r flask_requirements.txt
