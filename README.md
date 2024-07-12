@@ -11,7 +11,7 @@
 ## spark                        - Run a Spark cluster, rebuild the postgres container, then create the destination tables
 ## airflow                      - Spinup airflow scheduler and webserver.
 ## kafka                        - Spinup kafka cluster (Kafka+Zookeeper).
-## Flask                        - As a data receiving server from IoT devices
+## Flask                        - Run a Flask container and data receiving server from IoT devices
 ## clean                        - Cleanup all running containers related to the challenge.
 ```
 
