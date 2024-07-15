@@ -9,7 +9,9 @@ In this scenario, my task involves processing the data for monitoring and visual
 #Usage:
 - Ensure the IoT device and Flask server configurations are connected.
 - Run 'make kafka-create'
+- Run 'make kafka'
 - Run 'make docker-build-flask'
+- Run 'make flask'
 - Run 'make postgres-create'
 - Run 'make postgres-create-table'
 - Run 'make grafana'
