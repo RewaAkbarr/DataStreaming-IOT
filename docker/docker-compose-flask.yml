@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  flask:
+    image: docker.io/dataeng-dibimbing/flask
+    container_name: flask
+    hostname: flask
+    entrypoint: ["python","/app/producer.py"]
+    volumes:
+      - ../:/app
+    ports:
+      - "51678:51678"
+      - "7077:7077"
+      - "8100:8080"
+
+networks:
+  default:
+    name: dataeng-network
+    external: true
