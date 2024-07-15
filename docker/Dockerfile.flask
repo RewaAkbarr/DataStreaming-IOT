@@ -1,7 +1,11 @@
-FROM python:3.10.11
+FROM docker.io/dataeng-dibimbing/flask
 USER root
 
-COPY ./.env /opt/app/.env
-COPY ./flask_requirements.txt .
-COPY ./consumer.py .
-RUN pip install -r flask_requirements.txt
+WORKDIR /app
+
+COPY docker/start.sh /start.sh
+ENTRYPOINT ["/bin/bash", "/start.sh"]
+COPY ./.env /app/.env
+COPY ./flask_requirements.txt /app
+COPY ./consumer.py /app
+RUN pip install -r /app/flask_requirements.txt

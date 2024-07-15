@@ -46,17 +46,15 @@ docker-build-arm:
 	@docker build -t dataeng-dibimbing/jupyter -f ./docker/Dockerfile.jupyter .
 	@echo '==========================================================='
 
-docker-build-consumer:
-	@docker build -t dataeng-dibimbing/consumer -f ./docker/Dockerfile.consumer .
-
-consumer:
-	@docker compose -f ./docker/docker-compose-consumer.yml --env-file .env up -d
 
 docker-build-flask:
 	@docker build -t dataeng-dibimbing/flask -f ./docker/Dockerfile.flask .
 
 flask:
 	@docker compose -f ./docker/docker-compose-flask.yml --env-file .env up -d
+
+grafana:
+	@docker compose -f ./docker/docker-compose-grafana.yml --env-file .env up -d
 
 jupyter:
 	@echo '__________________________________________________________'
@@ -107,7 +105,7 @@ postgres-create:
 	@echo 'Postgres Docker Host	: ${POSTGRES_CONTAINER_NAME}' &&\
 		echo 'Postgres Account	: ${POSTGRES_USER}' &&\
 		echo 'Postgres password	: ${POSTGRES_PASSWORD}' &&\
-		echo 'Postgres Db		: ${POSTGRES_DW_DB}'
+		echo 'Postgres Db		: ${POSTGRES_DB}'
 	@sleep 5
 	@echo '==========================================================='
 
@@ -115,7 +113,7 @@ postgres-create-table:
 	@echo '__________________________________________________________'
 	@echo 'Creating tables...'
 	@echo '_________________________________________'
-	@docker exec -it ${POSTGRES_CONTAINER_NAME} psql -U ${POSTGRES_USER} -d ${POSTGRES_DW_DB} -f sql/ddl-retail.sql
+	@docker exec -it ${POSTGRES_CONTAINER_NAME} psql -U ${POSTGRES_USER} -d ${POSTGRES_DB} -f app/sensor_data.sql
 	@echo '==========================================================='
 
 postgres-ingest-csv:
@@ -129,7 +127,7 @@ postgres-create-warehouse:
 	@echo '__________________________________________________________'
 	@echo 'Creating Warehouse DB...'
 	@echo '_________________________________________'
-	@docker exec -it ${POSTGRES_CONTAINER_NAME} psql -U ${POSTGRES_USER} -d ${POSTGRES_DB} -f sql/warehouse-ddl.sql
+	@docker exec -it ${POSTGRES_CONTAINER_NAME} psql -U ${POSTGRES_USER} -d ${POSTGRES_DB} -f app/sensor_data.sql
 	@echo '==========================================================='
 
 kafka: kafka-create

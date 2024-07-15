@@ -5,7 +5,6 @@ services:
     image: docker.io/dataeng-dibimbing/flask
     container_name: flask
     hostname: flask
-    entrypoint: ["python","/app/producer.py"]
     volumes:
       - ../:/app
     ports:

@@ -1,41 +1,69 @@
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import from_json, col
-from pyspark.sql.types import StructType, StructField, StringType
-import os
-
+from kafka import KafkaConsumer
+import psycopg2
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from dotenv import load_dotenv
-load_dotenv()
+from pathlib import Path
+import logging
+import json
 
-kafka_host = os.getenv('KAFKA_HOST')
-kafka_topic = os.getenv('KAFKA_TOPIC_NAME')
-postgres_host = os.getenv('POSTGRES_HOST')
-postgres_password = os.getenv('POSTGRES_PASSWORD')
-postgres_db = os.getenv('POSTGRES_DB')
-postgres_container = os.getenv('POSTGRES_CONTAINER')
+dotenv_path = Path('/app/.env')
+load_dotenv(dotenv_path=dotenv_path)
 
-# Membuat SparkSession
-spark = SparkSession.builder \
-    .appName("Kafka to Spark to Postgres") \
-    .config("spark.jars.packages", "org.apache.spark:spark-sql-kafka-0-10_2.12:3.3.2") \
-    .getOrCreate()
+kafka_host = "dataeng-kafka"
+kafka_port = 9092
+kafka_topic = "test-topic"
+postgres_host = "host.docker.internal"
+postgres_password = "password"
+postgres_db = "postgres_db"
+postgres_user = "user"
 
-# Membaca data dari Kafka
-df = spark \
-    .readStream \
-    .format("kafka") \
-    .option("kafka.bootstrap.servers", os.getenv('KAFKA_HOST') + ':9092') \
-    .option("subscribe", os.getenv('KAFKA_TOPIC_NAME')) \
-    .load()
+# Set up logging
+logging.basicConfig(level=logging.INFO)
 
-# Mengubah data menjadi string
-df = df.selectExpr("CAST(value AS STRING)")
+try:
+    # Create a Kafka consumer
+    consumer = KafkaConsumer('test-topic',
+    bootstrap_servers=[f'{kafka_host}:{kafka_port}'],
+    group_id='dibimbing-group',
+    value_deserializer=lambda m: json.loads(m.decode('utf-8'))
+)
+    logging.info("Kafka consumer created")
 
-# Menyimpan data ke PostgreSQL
-df.write \
-    .format("jdbc") \
-    .option("url", f"jdbc:postgresql://{os.getenv('POSTGRES_CONTAINER_NAME')}:{os.getenv('POSTGRES_PORT')}/{os.getenv('POSTGRES_DB')}") \
-    .option("dbtable", "sensor_data") \
-    .option("user", os.getenv('POSTGRES_USER')) \
-    .option("password", os.getenv('POSTGRES_PASSWORD')) \
-    .option("driver", "org.postgresql.Driver") \
-    .save()
+    # Connect to PostgreSQL
+    conn = psycopg2.connect(
+        host=postgres_host,
+        database=postgres_db,
+        user=postgres_user,
+        password=postgres_password,
+        port=5432
+    )
+    logging.info("Connected to PostgreSQL")
+
+    conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+    cur = conn.cursor()
+
+    for message in consumer:
+        try:
+            # message.value is already a dict because of the value_deserializer
+            data = message.value
+            logging.info(f"Received data: {data}")
+
+            # Check if data has necessary keys
+            if 'temperature' in data and 'humidity' in data and 'timestamp' in data:
+                # Insert data into PostgreSQL
+                cur.execute("INSERT INTO public.sensor_data (temperature, humidity, timestamp) VALUES (%s, %s, %s)",
+                            (data['temperature'], data['humidity'], data['timestamp']))
+                conn.commit()
+                logging.info("Data inserted into PostgreSQL")
+            else:
+                logging.error("Data does not have necessary keys")
+
+        except Exception as e:
+            logging.error(f"An error occurred: {e}")
+
+    # Close connections
+    cur.close()
+    conn.close()
+
+except Exception as e:
+    logging.error(f"An error occurred: {e}")
