@@ -1,17 +1,40 @@
-1. Clone This Repo.
-2. Run `make docker-build` for x86 user, or `make docker-build-arm` for arm chip user.
-## docker-build                 - Build Docker Images (amd64) including its inter-container network.
-## docker-build-arm             - Build Docker Images (arm64) including its inter-container network.
-## postgres                     - Run a Postgres container
-## spark                        - Run a Spark cluster, rebuild the postgres container, then create the destination tables
-## airflow                      - Spinup airflow scheduler and webserver.
-## kafka                        - Spinup kafka cluster (Kafka+Zookeeper).
-## Flask                        - Run a Flask container and data receiving server from IoT devices
-## clean                        - Cleanup all running containers related to the challenge.
+~ DATA STREAMING IOT ~
+Real-time data originates from IoT temperature and air humidity sensors within a room.
+In this scenario, my task involves processing the data for monitoring and visualization.
 
-## jupyter                      - Spinup jupyter notebook for testing and validation purposes.
-## airflow                      - Spinup airflow scheduler and webserver.
-## kafka                        - Spinup kafka cluster (Kafka+Zookeeper).
-## datahub                      - Spinup datahub instances.
-## metabase                     - Spinup metabase instance.
-## clean                        - Cleanup all running containers related to the challenge.
+Installation:
+
+Clone this repository.
+#Usage:
+- Ensure the IoT device and Flask server configurations are connected.
+- Run 'make kafka-create'
+- Run 'make docker-build-flask'
+- Run 'make postgres-create'
+- Run 'make postgres-create-table'
+- Run 'make grafana'
+- Open Docker Desktop and access the Flask Docker image to check logs for data transmission status.
+- Access the Kafka link to verify Kafka topics for data reception.
+- Open the PostgreSQL database management tool, configure the database in consumer.py.
+- Access the Grafana link, log in, and configure PostgreSQL database with Grafana.
+
+#Architecture of Data:
+- IoT devices send real-time data to the Flask server.
+- Data is read by a Kafka producer and sent to the broker.
+- Kafka consumer reads and receives data from the broker.
+- Data is then stored in PostgreSQL.
+- PostgreSQL data is configured with Grafana for monitoring and visualization.
+
+#Supporting Tools Used:
+- Visual Studio Code
+- Docker Desktop
+- Flask
+- Kafka
+- DBeaver
+- PostgreSQL
+- Grafana
+  
+#License
+
+Contact
+
+Muhammad Rewa Akbari - muhammadrewaakbari@gmail.com
