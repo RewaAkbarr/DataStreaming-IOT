@@ -4,7 +4,7 @@ Real-time data originates from IoT temperature and air humidity sensors within a
 In this scenario, my task involves processing the data for monitoring and visualization.
 
 *Documentation*
--[Presentation.pptx](https://github.com/user-attachments/files/16242810/Presentation.pptx)
+- [Presentation.pptx](https://github.com/user-attachments/files/16242810/Presentation.pptx)
 
 #Installation:
 - Clone this repository
